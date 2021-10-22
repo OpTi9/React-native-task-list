@@ -1,21 +1,60 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {StatusBar} from 'expo-status-bar';
+import React, {useState} from 'react';
+import {StyleSheet, View, Button, FlatList, Text} from 'react-native';
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+    const [courseGoals, setCourseGoals] = useState([]);
+    const [isAddMode, setIsAddMode] = useState(false);
+
+    const addGoalHandler = goalTitle => {
+        setCourseGoals(courseGoals => [
+            ...courseGoals,
+            {id: Math.random().toString(), value: goalTitle}
+        ]);
+        setIsAddMode(false);
+    };
+
+    const removeGoalHandler = goalId => {
+        setCourseGoals(courseGoals => {
+            return courseGoals.filter((goal) => goal.id !== goalId);
+        })
+    }
+
+    const cancelGoalAddHandler = () => {
+        setIsAddMode(false);
+    }
+
+    return (
+        <View style={styles.screen}>
+            <Text style={styles.title}>My tasks</Text>
+            <GoalInput visible={isAddMode} onAddGoal={addGoalHandler} onCancel={cancelGoalAddHandler}/>
+            <FlatList
+                keyExtractor={(item, index) => item.id}
+                data={courseGoals}
+                renderItem={itemData => (
+                    <GoalItem
+                        id={itemData.item.id}
+                        title={itemData.item.value}
+                        onDelete={removeGoalHandler}
+                    />
+                )}
+            />
+            <Button title={"Add"} onPress={() => setIsAddMode(true)} />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    screen: {
+        padding: 70
+    },
+    title: {
+        fontSize: 30,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 20
+    }
 });
